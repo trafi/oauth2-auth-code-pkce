@@ -10,6 +10,7 @@ export interface Configuration {
   redirectUrl: URL;
   scopes: string[];
   tokenUrl: URL;
+  audience?: string;
 }
 
 export interface PKCECodes {
@@ -275,7 +276,7 @@ export class OAuth2AuthCodePKCE {
   public async fetchAuthorizationCode(): Promise<void> {
     this.assertStateAndConfigArePresent();
 
-    const { clientId, redirectUrl, scopes } = this.config;
+    const { clientId, redirectUrl, scopes, audience } = this.config;
     const { codeChallenge, codeVerifier } = await OAuth2AuthCodePKCE
       .generatePKCECodes();
     const stateQueryParam = OAuth2AuthCodePKCE
@@ -296,6 +297,7 @@ export class OAuth2AuthCodePKCE {
       + `client_id=${encodeURIComponent(clientId)}&`
       + `redirect_uri=${encodeURIComponent(redirectUrl)}&`
       + `scope=${encodeURIComponent(scopes.join(' '))}&`
+      + audience !== undefined ? `audience=${audience}&` : ''
       + `state=${stateQueryParam}&`
       + `code_challenge=${encodeURIComponent(codeChallenge)}&`
       + `code_challenge_method=S256`;
